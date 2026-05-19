@@ -59,7 +59,7 @@ def main():
     else:
         image_path = sys.argv[1]
 
-        gray_img = grayscale_resize_image(image_path, shutil.get_terminal_size()[0], 0.5)
+        gray_img = grayscale_resize_image(image_path, shutil.get_terminal_size().columns - 5, 0.5)
 
         detailed_ramp = np.array(list('$@B%8&WM#*oahkbdpqwmZO0QLCJYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'.'))
         normal_ramp = np.array(list('@%#*+=-:.'))
