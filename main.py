@@ -1,5 +1,8 @@
 from PIL import Image
 import sys
+import numpy as np
+#np.set_printoptions(threshold=np.inf)
+
 
 # Resize
 def grayscale_resize_image(image, desired_width):
@@ -11,6 +14,17 @@ def grayscale_resize_image(image, desired_width):
     return resized_image
 
 
+def matrix_processing(image):
+    lookup = np.array([".", ":", "-", "=", "+", "*", "#", "%", "@"])
+
+    matrix = np.array(image)
+    bins = [255, 240, 210, 180, 150, 120, 90, 60, 30]
+    digitized = np.digitize(matrix, bins) - 1
+    return lookup[digitized]
+
+
+
+
 def main():
     if len(sys.argv) == 1:
         print("Please provide the image path you want to process")
@@ -18,7 +32,8 @@ def main():
     else:
         image_path = sys.argv[1]
 
-    grayscale_resize_image(image_path, 500).save("resized_image.jpg")
+    gray_img = grayscale_resize_image(image_path, 500)
+    print(matrix_processing(gray_img))
 
 if __name__ == "__main__":
     main()
