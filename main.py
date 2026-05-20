@@ -17,11 +17,14 @@ def resize_image(image, desired_width, correction_factor):
     resized_image = im.resize((desired_width, desired_height))
     return resized_image
 
+def color_image(image):
+    color_im = image.convert('RGB')
+    return color_im
 
 def grayscale_image(image):
-    im = Image.open(image)
-    gray_im = im.convert('L')
+    gray_im = image.convert('L')
     return gray_im
+
 
 # Convert image to array of brightness
 # create no. of bins same as the ramps
@@ -37,14 +40,27 @@ def matrix_processing(image, lookup, invert = True):
     digitized = np.digitize(matrix, bins) - 1
     return lookup[digitized]
 
-#def colorize(image):
+
+def colorize(image, gray_matrix):
+    color_matrix = np.array(image)
+
+    line = ""
+    for ascii_row, rgb_row in zip(gray_matrix, color_matrix):
+        for ch, (r, g, b) in zip(ascii_row, rgb_row):
+            line += f"\033[38;2;{r};{g};{b}m{ch}\033[0m"
+        line += "\n"
+    return line
 
 #convert array and joins characters of each row and joins the row
-def array_to_ascii(array):
-    ascii_str = ""
-    for row in array:
-        ascii_str = ascii_str + ''.join(row) + "\n"
-    print(ascii_str)
+def array_to_ascii(gray_matrix, image=None, use_color = False):
+    if use_color:
+        print(colorize(image, gray_matrix))
+
+    else:
+        ascii_str = ""
+        for row in gray_matrix:
+            ascii_str = ascii_str + ''.join(row) + "\n"
+        print(ascii_str)
 
 def main():
     docs = """
@@ -73,6 +89,7 @@ def main():
 
         resized_image = resize_image(image_path, shutil.get_terminal_size().columns - 5, 0.5)
         gray_img = grayscale_image(resized_image)
+        color_img = color_image(resized_image)
 
 
         if "--detail" in sys.argv and "--invert" in sys.argv:
@@ -82,9 +99,12 @@ def main():
             lookup_matrix = matrix_processing(gray_img, DETAILED_RAMP)
         elif "--invert" in sys.argv:
             lookup_matrix = matrix_processing(gray_img, NORMAL_RAMP, invert= False)
+        elif "--color" in sys.argv:
+            lookup_matrix = matrix_processing(gray_img, NORMAL_RAMP, invert= False)
+            array_to_ascii(lookup_matrix, color_img, True)
         else:
             lookup_matrix = matrix_processing(gray_img, NORMAL_RAMP)
-        array_to_ascii(lookup_matrix)
+            array_to_ascii(lookup_matrix)
 
 if __name__ == "__main__":
     main()
