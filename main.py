@@ -30,11 +30,11 @@ def grayscale_image(image):
 # create no. of bins same as the ramps
 # Interporate brightnesses from total 255 to no. of ramps
 # maps those number with the ramp characters
-def matrix_processing(image, lookup, invert = True):
+def matrix_processing(image, lookup, invert = False):
     total_ramps = len(lookup)
 
     matrix = np.array(image)
-    bins = np.linspace(0,255,total_ramps, dtype=int)
+    bins = np.linspace(255,0,total_ramps, dtype=int)
     if invert:
         bins = np.flip(bins)
     digitized = np.digitize(matrix, bins) - 1
@@ -102,7 +102,7 @@ def main():
         use_color = "--color" in sys.argv
         lookup = DETAILED_RAMP if detail else NORMAL_RAMP
 
-        lookup_matrix = matrix_processing(gray_img, lookup, invert = not invert)
+        lookup_matrix = matrix_processing(gray_img, lookup, invert = invert)
         array_to_ascii(lookup_matrix,
                        color_img if use_color else None,
                        use_color)
