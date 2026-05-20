@@ -70,13 +70,18 @@ def main():
     Options:
         --detail      Increase output detail by using a denser character ramp
         --invert      Invert character mapping (dark to light or vice versa)
+        --color       Colorized Output
         --help        For help
     
     Examples:
         image-to-ascii.py image.jpg
         image-to-ascii.py image.jpg --detail
         image-to-ascii.py image.jpg --invert
+        image-to-ascii.py image.jpg --color
         image-to-ascii.py image.jpg --detail --invert
+        image-to-ascii.py image.jpg --detail --color
+        image-to-ascii.py image.jpg --invert --color
+        image-to-ascii.py image.jpg --invert --color --detail
     """
 
     if len(sys.argv) == 1:
@@ -87,24 +92,20 @@ def main():
     else:
         image_path = sys.argv[1]
 
+
         resized_image = resize_image(image_path, shutil.get_terminal_size().columns - 5, 0.5)
         gray_img = grayscale_image(resized_image)
         color_img = color_image(resized_image)
 
+        detail = "--detail" in sys.argv
+        invert = "--invert" in sys.argv
+        use_color = "--color" in sys.argv
+        lookup = DETAILED_RAMP if detail else NORMAL_RAMP
 
-        if "--detail" in sys.argv and "--invert" in sys.argv:
-            lookup_matrix = matrix_processing(gray_img, DETAILED_RAMP, invert = False)
-            array_to_ascii(lookup_matrix)
-        elif "--detail" in sys.argv:
-            lookup_matrix = matrix_processing(gray_img, DETAILED_RAMP)
-        elif "--invert" in sys.argv:
-            lookup_matrix = matrix_processing(gray_img, NORMAL_RAMP, invert= False)
-        elif "--color" in sys.argv:
-            lookup_matrix = matrix_processing(gray_img, NORMAL_RAMP, invert= False)
-            array_to_ascii(lookup_matrix, color_img, True)
-        else:
-            lookup_matrix = matrix_processing(gray_img, NORMAL_RAMP)
-            array_to_ascii(lookup_matrix)
+        lookup_matrix = matrix_processing(gray_img, lookup, invert = not invert)
+        array_to_ascii(lookup_matrix,
+                       color_img if use_color else None,
+                       use_color)
 
 if __name__ == "__main__":
     main()
