@@ -4,14 +4,24 @@ import shutil
 import numpy as np
 #np.set_printoptions(threshold=np.inf)
 
+
+DETAILED_RAMP = np.array(list('$@B%8&WM#*oahkbdpqwmZO0QLCJYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'.'))
+NORMAL_RAMP = np.array(list('@%#*+=-:.'))
+
 # Convert image to grayscale and resizes them
-def grayscale_resize_image(image, desired_width, correction_factor):
+
+def resize_image(image, desired_width, correction_factor):
     im = Image.open(image)
-    gray_im = im.convert('L')
     width, height = im.size[0], im.size[1]
     desired_height = int((height/width)*desired_width*correction_factor)
-    resized_image = gray_im.resize((desired_width, desired_height))
+    resized_image = im.resize((desired_width, desired_height))
     return resized_image
+
+
+def grayscale_image(image):
+    im = Image.open(image)
+    gray_im = im.convert('L')
+    return gray_im
 
 # Convert image to array of brightness
 # create no. of bins same as the ramps
@@ -26,6 +36,8 @@ def matrix_processing(image, lookup, invert = True):
         bins = np.flip(bins)
     digitized = np.digitize(matrix, bins) - 1
     return lookup[digitized]
+
+#def colorize(image):
 
 #convert array and joins characters of each row and joins the row
 def array_to_ascii(array):
@@ -59,20 +71,19 @@ def main():
     else:
         image_path = sys.argv[1]
 
-        gray_img = grayscale_resize_image(image_path, shutil.get_terminal_size().columns - 5, 0.5)
+        resized_image = resize_image(image_path, shutil.get_terminal_size().columns - 5, 0.5)
+        gray_img = grayscale_image(resized_image)
 
-        detailed_ramp = np.array(list('$@B%8&WM#*oahkbdpqwmZO0QLCJYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'.'))
-        normal_ramp = np.array(list('@%#*+=-:.'))
 
         if "--detail" in sys.argv and "--invert" in sys.argv:
-            lookup_matrix = matrix_processing(gray_img, detailed_ramp, invert = False)
+            lookup_matrix = matrix_processing(gray_img, DETAILED_RAMP, invert = False)
             array_to_ascii(lookup_matrix)
         elif "--detail" in sys.argv:
-            lookup_matrix = matrix_processing(gray_img, detailed_ramp)
+            lookup_matrix = matrix_processing(gray_img, DETAILED_RAMP)
         elif "--invert" in sys.argv:
-            lookup_matrix = matrix_processing(gray_img, normal_ramp, invert= False)
+            lookup_matrix = matrix_processing(gray_img, NORMAL_RAMP, invert= False)
         else:
-            lookup_matrix = matrix_processing(gray_img, normal_ramp)
+            lookup_matrix = matrix_processing(gray_img, NORMAL_RAMP)
         array_to_ascii(lookup_matrix)
 
 if __name__ == "__main__":
