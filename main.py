@@ -34,7 +34,7 @@ def matrix_processing(image, lookup, invert = False):
     total_ramps = len(lookup)
 
     matrix = np.array(image)
-    quartile_positions = np.linspace(0, 1, total_ramps + 1, dtype=int)
+    quartile_positions = np.linspace(0, 1, total_ramps + 1)
     boundaries = np.quantile(matrix, quartile_positions)[1:-1]
 
     if invert:
