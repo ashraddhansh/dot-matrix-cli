@@ -34,7 +34,7 @@ def matrix_processing(image, lookup, invert = False):
     total_ramps = len(lookup)
 
     matrix = np.array(image)
-    bins = np.linspace(255,0,total_ramps, dtype=int)
+    bins = np.linspace(np.max(matrix),np.min(matrix),total_ramps, dtype=int)
     if invert:
         bins = np.flip(bins)
     digitized = np.digitize(matrix, bins) - 1
