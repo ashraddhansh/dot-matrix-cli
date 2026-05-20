@@ -34,10 +34,12 @@ def matrix_processing(image, lookup, invert = False):
     total_ramps = len(lookup)
 
     matrix = np.array(image)
-    bins = np.linspace(np.max(matrix),np.min(matrix),total_ramps, dtype=int)
+    quartile_positions = np.linspace(0, 1, total_ramps + 1, dtype=int)
+    boundaries = np.quantile(matrix, quartile_positions)[1:-1]
+
     if invert:
-        bins = np.flip(bins)
-    digitized = np.digitize(matrix, bins) - 1
+        boundaries = np.flip(boundaries)
+    digitized = np.digitize(matrix, boundaries) - 1
     return lookup[digitized]
 
 
