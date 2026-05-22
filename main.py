@@ -2,11 +2,9 @@ from PIL import Image
 import sys
 import shutil
 import numpy as np
+from constants import *
 #np.set_printoptions(threshold=np.inf)
 
-
-DETAILED_RAMP = np.array(list('$@B%8&WM#*oahkbdpqwmZO0QLCJYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'.'))
-NORMAL_RAMP = np.array(list('@%#*+=-:.'))
 
 # Convert image to grayscale and resizes them
 
