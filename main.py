@@ -2,6 +2,7 @@ from PIL import Image
 import sys
 import shutil
 import numpy as np
+from numpy.lib import stride_tricks
 from constants import *
 #np.set_printoptions(threshold=np.inf)
 
@@ -54,6 +55,36 @@ def colorize(image, gray_matrix):
             line += f"\033[38;2;{r};{g};{b}m{ch}\033[0m"
         line += "\n"
     return line
+
+def edge_detector(array):
+    array = array.astype(float)
+    height, width = array.shape
+    Kx = np.array([[-1, 0, 1],
+                [-2, 0, 2],
+                [-1, 0, 1]])
+
+    Ky = np.array([[1, 2, 1],
+                [0, 0, 0],
+                [-1, -2, -1]])
+    edge_matrix = np.zeros((height, width), dtype=float)
+    for row in range(1, height-1):
+        for element in range(1, width-1):
+            region = array[row-1:row+2, element-1:element+2]
+            Gx = np.sum(region * Kx)
+            Gy = np.sum(region * Ky)
+            G = np.sqrt(np.square(Gx)+ np.square(Gy))
+            edge_matrix[row, element] = G
+
+    xmin = np.min(edge_matrix)
+    xmax = np.max(edge_matrix)
+
+    if xmin == xmax:
+        return edge_matrix
+    sub = np.subtract(edge_matrix, xmin)
+    div = np.divide(sub, xmax-xmin)
+    result = np.multiply(div, 255)
+    return result.astype(np.uint8)
+
 
 #convert array and joins characters of each row and joins the row
 def array_to_ascii(gray_matrix, image=None, use_color = False):
