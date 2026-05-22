@@ -99,7 +99,7 @@ def main():
         image_path = sys.argv[1]
 
 
-        resized_image = resize_image(image_path, shutil.get_terminal_size().columns - 5, 0.5)
+        resized_image = resize_image(image_path, shutil.get_terminal_size().columns - int(0.7*(shutil.get_terminal_size().lines)), 0.5)
         gray_img = grayscale_image(resized_image)
         color_img = color_image(resized_image)
 
