@@ -2,7 +2,6 @@ from PIL import Image
 import sys
 import shutil
 import numpy as np
-from numpy.lib import stride_tricks
 from constants import *
 #np.set_printoptions(threshold=np.inf)
 
@@ -29,19 +28,27 @@ def grayscale_image(image):
 # create no. of bins same as the ramps
 # Interporate brightnesses from total 255 to no. of ramps
 # maps those number with the ramp characters
-def matrix_processing(image, lookup, invert = False, normal = False):
+def matrix_processing(image, lookup, invert = False, normal = False, edge_only = False, detect_edges = False):
     total_ramps = len(lookup)
     matrix = np.array(image) 
+    if detect_edges:
+        matrix = np.multiply(0.7,matrix) + np.multiply(0.3,edge_detector(matrix))
+
 
     if normal:
         quartile_positions = np.linspace(0, 1, total_ramps + 1)
         bins = np.quantile(matrix, quartile_positions)[1:-1]
+
+    elif edge_only:
+        bins = np.linspace(np.max(edge_detector(matrix)),np.min(matrix),total_ramps)
+
 
     else:
         bins = np.linspace(np.max(matrix),np.min(matrix),total_ramps)
 
     if invert:
         bins = np.flip(bins)
+    
     digitized = np.digitize(matrix, bins) - 1
     return lookup[digitized]
 
@@ -113,6 +120,7 @@ def main():
         image-to-ascii.py image.jpg --detail
         image-to-ascii.py image.jpg --invert
         image-to-ascii.py image.jpg --color
+        image-to-ascii.py image.jpg --edge-only
         image-to-ascii.py image.jpg --detail --invert
         image-to-ascii.py image.jpg --detail --color
         image-to-ascii.py image.jpg --invert --color
@@ -136,9 +144,11 @@ def main():
         invert = "--invert" in sys.argv
         use_color = "--color" in sys.argv
         normal = "--normal" in sys.argv
+        edge_only = "--edge-only" in sys.argv
+        detect_edges = "--detect-edges" in sys.argv
         lookup = DETAILED_RAMP if detail else NORMAL_RAMP
 
-        lookup_matrix = matrix_processing(gray_img, lookup, invert = invert, normal=normal)
+        lookup_matrix = matrix_processing(gray_img, lookup, invert = invert, normal=normal, edge_only=edge_only, detect_edges=detect_edges)
         array_to_ascii(lookup_matrix,
                        color_img if use_color else None,
                        use_color)
