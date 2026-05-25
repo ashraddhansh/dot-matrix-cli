@@ -21,7 +21,8 @@ Built with:
 - Automatic terminal-aware output sizing
 - Lightweight implementation with minimal dependencies
 
-# Working
+## Working
+![This image represents the flow of working of dot-matrix-cli](./assets/flowchart.png "Working flowchart")
 
 The edge detection implementation uses the Sobel operator and supports both:
 - pure edge rendering
